@@ -11,3 +11,4 @@ All notable changes to this project will be documented in this file.
 - No-cloud Terraform basics exercise.
 - Consistent editor, line-ending, and Git ignore rules.
 - Private vulnerability reporting and credential-rotation guidance.
+- Minimal Bicep trust anchor for GitHub OIDC: two resource groups, a bootstrap user-assigned managed identity, a federated credential, and resource-group-scoped role assignments.

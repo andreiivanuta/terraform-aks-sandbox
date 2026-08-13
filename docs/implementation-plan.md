@@ -14,15 +14,15 @@ Last reviewed: 2026-08-13
 - [x] GitHub account email privacy, 2FA, session, application, token, and profile settings reviewed.
 - [x] Repository Actions and code-security settings hardened.
 - [x] Local Git author uses the GitHub `noreply` address.
-- [x] Local branch is `dev`; the repository has no commits yet.
+- [x] Local branch is `dev`; foundation commit `7f7e13e` is pushed to `origin/dev`.
 - [x] Terraform 1.15.8 installed locally.
 - [x] Terraform basics exercise created and validated without Azure resources.
 - [x] Personal Azure context selected: `Visual Studio Enterprise Subscription`.
 - [x] Deployment region selected: `swedencentral`.
 - [x] AKS node SKU selected: `Standard_D2as_v5` with one node.
 - [x] Sweden Central quota verified: 20 total regional vCPUs and 20 DASv5-family vCPUs available.
-- [ ] Initial trust-anchor design implemented.
-- [ ] No Azure project resources have been created.
+- [x] Trust-anchor Bicep deployed to the personal subscription; provisioning state Succeeded.
+- [x] Azure project resources created: `rg-taks-bootstrap-swc`, `rg-taks-sandbox-swc`, bootstrap managed identity `id-taks-bootstrap-swc`, its GitHub OIDC federated credential, and four resource-group-scoped role assignments.
 
 ## Fixed decisions
 
@@ -242,6 +242,9 @@ State files and saved plans are sensitive. They must never enter Git, public wor
     ttl-cleanup.yml
 bootstrap-trust/
   main.bicep
+  modules/
+    bootstrap-identity.bicep
+    role-assignments.bicep
   README.md
 bootstrap/
   backend.tf
@@ -276,8 +279,8 @@ This layout may gain modules only if repeated infrastructure creates real comple
 - [x] Run secret and PII pattern checks.
 - [x] Run `git diff --check` and focused Terraform validation.
 - [x] Stage changes and present the staged diff for explicit approval.
-- [ ] Commit only after explicit user approval.
-- [ ] Push `dev` only after explicit user approval.
+- [x] Commit only after explicit user approval.
+- [x] Push `dev` only after explicit user approval.
 
 Exit criteria:
 
@@ -285,14 +288,14 @@ Exit criteria:
 
 ### Phase 1: Prepare GitHub trust metadata
 
-- [ ] Install GitHub CLI through an approved installation path.
-- [ ] Authenticate GitHub CLI interactively without sharing tokens through chat.
-- [ ] Verify the authenticated GitHub account and target repository.
-- [ ] Retrieve repository owner ID and repository ID.
-- [ ] Determine the exact immutable OIDC subject for each environment.
-- [ ] Create the `bootstrap` GitHub environment.
-- [ ] Restrict it to the protected deployment branch selected later.
-- [ ] Enable required approval where the account model supports a meaningful independent reviewer.
+- [x] Install GitHub CLI through an approved installation path.
+- [x] Authenticate GitHub CLI interactively without sharing tokens through chat.
+- [x] Verify the authenticated GitHub account and target repository.
+- [x] Retrieve repository owner ID and repository ID.
+- [x] Determine the exact immutable OIDC subject for each environment.
+- [x] Create the `bootstrap` GitHub environment.
+- [x] Restrict it to the `dev` deployment branch during initial implementation.
+- [x] Disable administrator bypass; independent reviewer approval is not available for the current single-maintainer model.
 
 Exit criteria:
 
@@ -300,14 +303,16 @@ Exit criteria:
 
 ### Phase 2: Implement and validate the trust anchor
 
-- [ ] Write the minimal subscription-scope Bicep template under `bootstrap-trust/`.
-- [ ] Parameterize region, generic project prefix, GitHub immutable subject, and tags.
-- [ ] Avoid tenant, subscription, user, and resource IDs in committed parameter files.
-- [ ] Validate Bicep syntax.
-- [ ] Run Azure deployment validation and what-if.
-- [ ] Review every proposed resource and role scope.
-- [ ] Deploy only after explicit user approval.
-- [ ] Capture only the bootstrap identity client ID as protected output; do not print tenant or subscription IDs unnecessarily.
+- [x] Write the minimal subscription-scope Bicep template under `bootstrap-trust/`.
+- [x] Parameterize region, generic project prefix, GitHub immutable subject, and tags.
+- [x] Avoid tenant, subscription, user, and resource IDs in committed parameter files.
+- [x] Validate Bicep syntax.
+- [x] Run Azure deployment validation and what-if.
+- [x] Review every proposed resource and role scope.
+- [x] Deploy only after explicit user approval.
+- [x] Capture only the bootstrap identity client ID as protected output; do not print tenant or subscription IDs unnecessarily.
+
+Azure What-If confirmed two resource groups, one managed identity, and one federated credential as creates. It marks the four role assignments as unsupported because the new identity's principal ID is generated only during deployment; Azure deployment validation succeeded and Bicep compilation confirms their schema and scope.
 
 Exit criteria:
 
@@ -489,6 +494,7 @@ When work resumes after interruption:
 | 2026-08-13 | Bicep owns bootstrap identity and both resource groups | Breaks the initial authentication and resource-group creation cycle without subscription-wide routine Contributor access |
 | 2026-08-13 | Terraform owns state Storage and three routine identities | Keeps normal project infrastructure in Terraform after trust is established |
 | 2026-08-13 | State lives in the current Azure subscription | Standard AzureRM backend pattern; deployment is intentionally replaceable when the subscription ends |
+| 2026-08-13 | Use Bicep resource-group modules under the subscription root | Bicep requires resource-group-scoped resources and role assignments to be deployed through modules at those scopes |
 
 ## Explicit non-goals
 
