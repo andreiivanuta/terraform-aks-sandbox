@@ -8,7 +8,7 @@ The goal is to deploy and destroy an ephemeral AKS learning cluster through GitH
 
 ## Current checkpoint
 
-Last reviewed: 2026-08-13
+Last reviewed: 2026-08-14
 
 - [x] Public GitHub repository created.
 - [x] GitHub account email privacy, 2FA, session, application, token, and profile settings reviewed.
@@ -23,6 +23,7 @@ Last reviewed: 2026-08-13
 - [x] Sweden Central quota verified: 20 total regional vCPUs and 20 DASv5-family vCPUs available.
 - [x] Trust-anchor Bicep deployed to the personal subscription; provisioning state Succeeded.
 - [x] Azure project resources created: `rg-taks-bootstrap-swc`, `rg-taks-sandbox-swc`, bootstrap managed identity `id-taks-bootstrap-swc`, its GitHub OIDC federated credential, and four resource-group-scoped role assignments.
+- [x] `bootstrap` GitHub environment configured with the three OIDC identifiers: `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` as environment variables, `AZURE_SUBSCRIPTION_ID` as an environment secret. Default Actions token verified read-only.
 
 ## Fixed decisions
 
@@ -169,12 +170,12 @@ Pull request validation jobs receive `contents: read` only.
 
 ## GitHub configuration model
 
-The following values are identifiers, not authentication secrets, but they will be stored as protected GitHub environment secrets to reduce public metadata disclosure:
+The following values are identifiers, not authentication secrets. All three are scoped to the `bootstrap` GitHub environment so they stay behind the environment gate and `dev` branch restriction. They are split by disclosure sensitivity: the two effectively public identifiers are stored as environment variables, and the subscription ID is stored as an environment secret to keep it out of the settings UI.
 
 ```text
-AZURE_CLIENT_ID
-AZURE_TENANT_ID
-AZURE_SUBSCRIPTION_ID
+AZURE_CLIENT_ID        # bootstrap environment variable
+AZURE_TENANT_ID        # bootstrap environment variable
+AZURE_SUBSCRIPTION_ID  # bootstrap environment secret
 ```
 
 No environment may contain:
@@ -321,10 +322,10 @@ Exit criteria:
 
 ### Phase 3: Configure the protected bootstrap environment
 
-- [ ] Add `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` to the `bootstrap` GitHub environment through authenticated automation or the UI.
-- [ ] Confirm values are not repository variables, source code, logs, or artifacts.
-- [ ] Restrict environment deployment branches.
-- [ ] Confirm Actions default token remains read-only.
+- [x] Add the three OIDC identifiers to the `bootstrap` GitHub environment through authenticated automation: `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` as environment variables, `AZURE_SUBSCRIPTION_ID` as an environment secret.
+- [x] Confirm values are environment-scoped, not repository-scoped, and absent from source code, logs, or artifacts.
+- [x] Restrict environment deployment branches (restricted to `dev` in Phase 1).
+- [x] Confirm Actions default token remains read-only (`default_workflow_permissions: read`).
 
 Exit criteria:
 
@@ -495,6 +496,7 @@ When work resumes after interruption:
 | 2026-08-13 | Terraform owns state Storage and three routine identities | Keeps normal project infrastructure in Terraform after trust is established |
 | 2026-08-13 | State lives in the current Azure subscription | Standard AzureRM backend pattern; deployment is intentionally replaceable when the subscription ends |
 | 2026-08-13 | Use Bicep resource-group modules under the subscription root | Bicep requires resource-group-scoped resources and role assignments to be deployed through modules at those scopes |
+| 2026-08-14 | Scope all three OIDC identifiers to the `bootstrap` environment; store `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` as variables and `AZURE_SUBSCRIPTION_ID` as a secret | Environment scope keeps the identifiers behind the environment gate and `dev` branch restriction on a public repo; the client ID varies per environment while the subscription secret stays out of the settings UI |
 
 ## Explicit non-goals
 
