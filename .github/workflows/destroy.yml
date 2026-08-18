@@ -1,0 +1,41 @@
+# Manually triggered teardown, as the `destroy` environment's deploy identity.
+# NOTE: pin actions to full commit SHAs before treating this as production.
+name: Destroy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: infra-apply # never overlap with apply or cleanup
+  cancel-in-progress: false
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    environment: destroy
+    env:
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }} # deploy (Contributor) identity, destroy environment
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Terraform init
+        run: >
+          terraform -chdir=infrastructure init -input=false
+          -backend-config="resource_group_name=rg-alz-management-swc"
+          -backend-config="storage_account_name=${{ vars.STATE_STORAGE_ACCOUNT_NAME }}"
+          -backend-config="container_name=tfstate"
+          -backend-config="key=taks.tfstate"
+
+      - name: Terraform destroy
+        run: terraform -chdir=infrastructure destroy -input=false -auto-approve -no-color
