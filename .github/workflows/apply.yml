@@ -9,6 +9,7 @@ on:
     paths:
       - "infrastructure/**"
       - "config/**"
+  workflow_dispatch: # manual trigger for the initial deploy / re-apply
 
 permissions:
   id-token: write
