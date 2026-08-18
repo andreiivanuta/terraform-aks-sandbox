@@ -25,7 +25,7 @@ jobs:
     environment: apply
     env:
       ARM_USE_OIDC: "true"
-      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }} # deploy (Contributor) identity
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID_APPLY }} # seeded repo-level per environment by the platform
       ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:

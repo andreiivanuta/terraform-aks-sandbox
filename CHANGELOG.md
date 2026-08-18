@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Refocused the repository to a single purpose: deploy and govern one ephemeral AKS cluster as GitOps. Single-trunk on `main`; `dev` retired.
+- Aligned the workflows' OIDC login to the platform seeding contract: repo-level `AZURE_CLIENT_ID_<ENV>` variables, selected per environment.
 
 ### Removed
 
