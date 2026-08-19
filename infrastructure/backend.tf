@@ -4,7 +4,7 @@ terraform {
   #   resource_group_name  = rg-alz-management-swc          (platform management RG)
   #   storage_account_name = <platform STATE_STORAGE_ACCOUNT_NAME>
   #   container_name       = tfstate
-  #   key                  = taks.tfstate                   (this workload's own state key)
+  #   key                  = taks-infra.tfstate             (separate from the vending's taks.tfstate)
   backend "azurerm" {
     use_azuread_auth = true
   }
