@@ -13,11 +13,11 @@ variable "node_size" {
 variable "node_count" {
   description = "Number of nodes in the default pool."
   type        = number
-  default     = 1
+  default     = 2
 
   validation {
-    condition     = var.node_count >= 1 && var.node_count <= 3
-    error_message = "node_count must be between 1 and 3 for this sandbox."
+    condition     = var.node_count >= 1 && var.node_count <= 5
+    error_message = "node_count must be between 1 and 5 for this sandbox."
   }
 }
 
@@ -30,7 +30,7 @@ variable "kubernetes_version" {
 variable "ttl_hours" {
   description = "Hours until the cluster is considered expired by the TTL cleanup workflow."
   type        = number
-  default     = 4
+  default     = 6
 }
 
 variable "tags" {
