@@ -17,3 +17,8 @@ output "expires_at" {
   description = "UTC time after which the TTL cleanup workflow may delete this cluster."
   value       = azurerm_kubernetes_cluster.this.tags["expires_at"]
 }
+
+output "ingress_ip" {
+  description = "Public IP of the ingress-nginx LoadBalancer service."
+  value       = helm_release.ingress_nginx.status
+}
