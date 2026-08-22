@@ -92,3 +92,14 @@ resource "kubernetes_namespace" "staging" {
   }
   depends_on = [azurerm_kubernetes_cluster.this]
 }
+
+resource "kubernetes_namespace" "production" {
+  metadata {
+    name = "production"
+    labels = {
+      environment = "production"
+      managed_by  = "terraform"
+    }
+  }
+  depends_on = [azurerm_kubernetes_cluster.this]
+}
