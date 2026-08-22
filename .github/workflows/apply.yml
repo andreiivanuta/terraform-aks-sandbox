@@ -45,3 +45,22 @@ jobs:
 
       - name: Terraform apply
         run: terraform -chdir=infrastructure apply -input=false -auto-approve -no-color
+
+      - name: Mint a repo-scoped token for solar-system
+        id: apptoken
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ vars.VENDING_APP_ID }}
+          private-key: ${{ secrets.VENDING_APP_PRIVATE_KEY }}
+          owner: andreiivanuta
+          repositories: solar-system
+
+      - name: Seed kubeconfig into solar-system secrets
+        env:
+          GH_TOKEN: ${{ steps.apptoken.outputs.token }}
+        run: |
+          set -euo pipefail
+          terraform -chdir=infrastructure output -raw kube_config_raw > kubeconfig.tmp
+          gh secret set KUBECONFIG --repo andreiivanuta/solar-system < kubeconfig.tmp
+          rm -f kubeconfig.tmp
+          echo "Seeded KUBECONFIG into solar-system"

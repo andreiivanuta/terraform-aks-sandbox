@@ -22,3 +22,9 @@ output "ingress_ip" {
   description = "Public IP of the ingress-nginx LoadBalancer service."
   value       = helm_release.ingress_nginx.status
 }
+
+output "kube_config_raw" {
+  description = "Full admin kubeconfig for the cluster (certificate-based)."
+  value       = azurerm_kubernetes_cluster.this.kube_config_raw
+  sensitive   = true
+}
