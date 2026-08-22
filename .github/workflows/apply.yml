@@ -61,6 +61,6 @@ jobs:
         run: |
           set -euo pipefail
           terraform -chdir=infrastructure output -raw kube_config_raw > kubeconfig.tmp
-          gh secret set KUBECONFIG --repo andreiivanuta/solar-system < kubeconfig.tmp
+          gh secret set KUBECONFIG --env development --repo andreiivanuta/solar-system < kubeconfig.tmp
           rm -f kubeconfig.tmp
           echo "Seeded KUBECONFIG into solar-system"
