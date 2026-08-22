@@ -70,3 +70,25 @@ resource "helm_release" "ingress_nginx" {
 
   depends_on = [azurerm_kubernetes_cluster.this]
 }
+
+resource "kubernetes_namespace" "development" {
+  metadata {
+    name = "development"
+    labels = {
+      environment = "development"
+      managed_by  = "terraform"
+    }
+  }
+  depends_on = [azurerm_kubernetes_cluster.this]
+}
+
+resource "kubernetes_namespace" "staging" {
+  metadata {
+    name = "staging"
+    labels = {
+      environment = "staging"
+      managed_by  = "terraform"
+    }
+  }
+  depends_on = [azurerm_kubernetes_cluster.this]
+}
