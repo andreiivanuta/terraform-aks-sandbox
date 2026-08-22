@@ -8,6 +8,7 @@ locals {
   cluster_name        = "aks-${local.workload_name}-${local.location_code}"
 
   common_tags = merge(var.tags, {
+    project    = local.workload_name
     created_at = time_static.created.rfc3339
     expires_at = timeadd(time_static.created.rfc3339, "${var.ttl_hours}h")
   })
